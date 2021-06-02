@@ -1,0 +1,245 @@
+%global commit0 6e5d8f54c1255dd37db5d7b8947b19f0737b5650
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global gver .git%{shortcommit0}
+# 
+#%define _legacy_common_support 1
+
+%global debug_package %{nil}
+
+%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
+
+
+%bcond_with ruby
+%bcond_with php
+
+Summary:        Toolkit for broadcasters, video editors, media players, transcoders
+Name:           mlt7
+Version:        7.0.1
+Release:        1%{?dist}
+
+License:        GPLv3 and LGPLv2+
+URL:            http://www.mltframework.org/twiki/bin/view/MLT/
+Group:          System Environment/Libraries
+Source0:        https://github.com/mltframework/mlt/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
+
+BuildRequires:  cmake
+
+BuildRequires:  frei0r-devel
+BuildRequires:  opencv-devel >= 4.5.0
+BuildRequires:  opencv-static >= 4.5.0
+BuildRequires:  qt5-qtsvg-devel
+BuildRequires:  qt5-qt3d-devel
+BuildRequires:  libquicktime-devel
+BuildRequires:  SDL2-devel
+BuildRequires:  SDL2_image-devel
+BuildRequires:  gtk2-devel
+BuildRequires:  jack-audio-connection-kit-devel
+BuildRequires:  libogg-devel
+BuildRequires:  swig >= 3.0.11
+BuildRequires:	php-devel
+
+#Deprecated dv, kino, and vorbis modules are not built.
+#https://github.com/mltframework/mlt/commit/9d082192a4d79157e963fd7f491da0f8abab683f
+#BuildRequires:  libdv-devel
+#BuildRequires:  libvorbis-devel
+BuildRequires:  libsamplerate-devel
+BuildRequires:  ladspa-devel
+BuildRequires:  libxml2-devel
+BuildRequires:  sox-devel
+BuildRequires:  swig
+BuildRequires:  python3-devel
+BuildRequires:	python3-setuptools
+BuildRequires:  freetype-devel
+BuildRequires:  libexif-devel
+BuildRequires:  fftw-devel
+BuildRequires:  xine-lib-devel
+BuildRequires:  pulseaudio-libs-devel
+BuildRequires:	lua-devel
+BuildRequires:	tcl-devel
+BuildRequires:	ninja-build
+
+BuildRequires:	vid.stab-devel
+BuildRequires:	movit-devel
+BuildRequires:	eigen3-devel
+BuildRequires:	libebur128-devel
+BuildRequires:	libatomic
+Provides:	mlt%{?_isa} = %{version}-%{release}
+
+%if %{with ruby}
+BuildRequires:  ruby-devel ruby
+%else
+Obsoletes: mlt-ruby < 0.8.8-5
+%endif
+
+Requires:  opencv-core
+Recommends:  %{name}-freeworld%{?_isa} = %{version}-%{release}
+
+
+%description
+MLT is an open source multimedia framework, designed and developed for 
+television broadcasting.
+
+It provides a toolkit for broadcasters, video editors,media players, 
+transcoders, web streamers and many more types of applications. The 
+functionality of the system is provided via an assortment of ready to use 
+tools, xml authoring components, and an extendible plug-in based API.
+
+
+%package devel
+Summary:        Libraries, includes to develop applications with %{name}
+License:        LGPLv2+
+Group:          Development/Libraries
+Requires:       pkgconfig
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%package -n python3-mlt
+Requires: python3
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Summary: Python3 package to work with MLT
+
+%if %{with ruby}
+%package ruby
+Requires: ruby >= 1.9.1
+Requires: %{name}%{_isa} = %{version}-%{release}
+Summary: Ruby package to work with MLT
+%endif
+
+%package freeworld
+BuildRequires: ffmpeg-devel >= 4.3
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Summary: Freeworld support part of MLT.
+
+%if %{with php}
+%package php
+Requires: php(zend-abi) = %{php_zend_api}
+Requires: php(api) = %{php_core_api}
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Summary: PHP package to work with MLT
+ 
+%description php
+This module allows to work with MLT using PHP.
+%endif
+
+%description devel
+The %{name}-devel package contains the header files and static libraries for
+building applications which use %{name}.
+
+%description -n python3-mlt
+This module allows to work with MLT using python. 
+
+%if %{with ruby}
+%description ruby
+This module allows to work with MLT using ruby.
+%endif
+
+%description freeworld
+This package give us the freeworld (ffmpeg support) part of MLT.
+
+
+%prep
+%autosetup -n mlt-%{commit0} -p1
+
+chmod 644 src/modules/qt/kdenlivetitle_wrapper.cpp
+chmod 644 src/modules/kdenlive/filter_freeze.c
+chmod -x demo/demo
+
+
+%if 0%{?fedora} >= 26
+# xlocale.h is gone in F26/RAWHIDE
+sed -r -i 's/#include <xlocale.h>/#include <locale.h>/' src/framework/mlt_property.h
+%endif
+
+# Change shebang in all relevant files in this directory and all subdirectories
+# See `man find` for how the `-exec command {} +` syntax works
+#find src/swig/python -name '*.py' | xargs sed -i '1s|^#!/usr/bin/env python|#!%{__python3}|'
+
+
+%build
+mkdir -p build
+%cmake -B build  \
+    -DMOD_OPENCV=ON \
+    -DMOD_MOVIT=ON \
+    -DSWIG_LUA=ON \
+    -DSWIG_PYTHON=ON \
+%if %{with php}
+    -DSWIG_PHP=ON \
+%endif
+%if %{with ruby}
+    -DSWIG_RUBY=ON  \
+%endif
+    
+%make_build -C build
+
+
+%install
+%make_install -C build
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%files
+%doc AUTHORS NEWS README*
+%license COPYING GPL
+%{_mandir}/man1/melt-7.1.gz
+%{_bindir}/melt
+%{_bindir}/melt-7
+%{_libdir}/libmlt++-7.so.*
+%{_libdir}/libmlt-7.so.*
+%{_datadir}/mlt-7/
+
+%files -n python3-mlt
+%{python3_sitearch}/mlt7.py
+%{python3_sitearch}/_mlt7.so
+%{python3_sitearch}/__pycache__/mlt7.*
+
+%if %{with ruby}
+%files ruby
+%{ruby_vendorarchdir}/mlt.so
+%endif
+
+%if %{with php}
+%files php
+%{php_extdir}/mlt.so
+/usr/lib64/php/modules/mlt.php
+%endif
+
+%files devel
+%doc docs/* demo/
+%{_libdir}/pkgconfig/mlt-framework-7.pc
+%{_libdir}/pkgconfig/mlt++-7.pc
+%{_libdir}/libmlt-7.so
+%{_libdir}/libmlt++-7.so
+%{_includedir}/mlt-7/
+
+%{_libdir}/cmake/Mlt7/
+%{_libdir}/mlt-7/libmltcore.so
+%{_libdir}/mlt-7/libmltdecklink.so
+%{_libdir}/mlt-7/libmltfrei0r.so
+%{_libdir}/mlt-7/libmltgdk.so
+%{_libdir}/mlt-7/libmltjackrack.so
+%{_libdir}/mlt-7/libmltkdenlive.so
+%{_libdir}/mlt-7/libmltmovit.so
+%{_libdir}/mlt-7/libmltnormalize.so
+%{_libdir}/mlt-7/libmltoldfilm.so
+%{_libdir}/mlt-7/libmltopencv.so
+%{_libdir}/mlt-7/libmltplus.so
+%{_libdir}/mlt-7/libmltplusgpl.so
+%{_libdir}/mlt-7/libmltqt.so
+%{_libdir}/mlt-7/libmltresample.so
+%{_libdir}/mlt-7/libmltrtaudio.so
+%{_libdir}/mlt-7/libmltsdl.so
+%{_libdir}/mlt-7/libmltsdl2.so
+%{_libdir}/mlt-7/libmltsox.so
+%{_libdir}/mlt-7/libmltvidstab.so
+%{_libdir}/mlt-7/libmltxine.so
+%{_libdir}/mlt-7/libmltxml.so
+
+
+%files freeworld 
+%{_libdir}/mlt-7/libmltavformat.so
+
+
+%changelog
+
+* Fri May 28 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 1:7.0.1-7
+- Initial build
