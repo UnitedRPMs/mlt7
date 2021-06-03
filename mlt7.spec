@@ -32,6 +32,8 @@ BuildRequires:  qt5-qt3d-devel
 BuildRequires:  libquicktime-devel
 BuildRequires:  SDL2-devel
 BuildRequires:  SDL2_image-devel
+BuildRequires:  SDL-devel
+BuildRequires:  SDL_image-devel
 BuildRequires:  gtk2-devel
 BuildRequires:  jack-audio-connection-kit-devel
 BuildRequires:  libogg-devel
