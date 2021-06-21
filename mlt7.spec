@@ -15,7 +15,7 @@
 Summary:        Toolkit for broadcasters, video editors, media players, transcoders
 Name:           mlt7
 Version:        7.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv3 and LGPLv2+
 URL:            http://www.mltframework.org/twiki/bin/view/MLT/
@@ -94,7 +94,7 @@ Group:          Development/Libraries
 Requires:       pkgconfig
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
-%package -n python3-mlt
+%package -n python3-mlt7
 Requires: python3
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Summary: Python3 package to work with MLT
@@ -126,7 +126,7 @@ This module allows to work with MLT using PHP.
 The %{name}-devel package contains the header files and static libraries for
 building applications which use %{name}.
 
-%description -n python3-mlt
+%description -n python3-mlt7
 This module allows to work with MLT using python. 
 
 %if %{with ruby}
@@ -189,7 +189,7 @@ mkdir -p build
 %{_libdir}/libmlt-7.so.*
 %{_datadir}/mlt-7/
 
-%files -n python3-mlt
+%files -n python3-mlt7
 %{python3_sitearch}/mlt7.py
 %{python3_sitearch}/_mlt7.so
 %{python3_sitearch}/__pycache__/mlt7.*
@@ -242,6 +242,9 @@ mkdir -p build
 
 
 %changelog
+
+* Sat Jun 19 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 1:7.0.1-8
+- Renamed fool subpackage
 
 * Fri May 28 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 1:7.0.1-7
 - Initial build
