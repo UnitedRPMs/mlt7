@@ -1,4 +1,4 @@
-%global commit0 6e5d8f54c1255dd37db5d7b8947b19f0737b5650
+%global commit0 ae64019707c6660e5e8d5cfe293ad3b18868a5c1
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global gver .git%{shortcommit0}
 # 
@@ -9,13 +9,13 @@
 %global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 
-%bcond_with ruby
-%bcond_with php
+%bcond_without ruby
+%bcond_without php
 
 Summary:        Toolkit for broadcasters, video editors, media players, transcoders
 Name:           mlt7
 Version:        7.0.1
-Release:        2%{?dist}
+Release:        4%{?dist}
 
 License:        GPLv3 and LGPLv2+
 URL:            http://www.mltframework.org/twiki/bin/view/MLT/
@@ -25,8 +25,11 @@ Source0:        https://github.com/mltframework/mlt/archive/%{commit0}.tar.gz#/%
 BuildRequires:  cmake
 
 BuildRequires:  frei0r-devel
+BuildRequires:  rtaudio-devel
+BuildRequires:  pkgconfig(gdk-pixbuf-2.0)
 BuildRequires:  opencv-devel >= 4.5.0
 BuildRequires:  opencv-static >= 4.5.0
+BuildRequires:  qt-devel
 BuildRequires:  qt5-qtsvg-devel
 BuildRequires:  qt5-qt3d-devel
 BuildRequires:  libquicktime-devel
@@ -205,15 +208,6 @@ mkdir -p build
 /usr/lib64/php/modules/mlt.php
 %endif
 
-%files devel
-%doc docs/* demo/
-%{_libdir}/pkgconfig/mlt-framework-7.pc
-%{_libdir}/pkgconfig/mlt++-7.pc
-%{_libdir}/libmlt-7.so
-%{_libdir}/libmlt++-7.so
-%{_includedir}/mlt-7/
-
-%{_libdir}/cmake/Mlt7/
 %{_libdir}/mlt-7/libmltcore.so
 %{_libdir}/mlt-7/libmltdecklink.so
 %{_libdir}/mlt-7/libmltfrei0r.so
@@ -236,6 +230,16 @@ mkdir -p build
 %{_libdir}/mlt-7/libmltxine.so
 %{_libdir}/mlt-7/libmltxml.so
 
+%files devel
+%doc docs/* demo/
+%{_libdir}/pkgconfig/mlt-framework-7.pc
+%{_libdir}/pkgconfig/mlt++-7.pc
+%{_libdir}/libmlt-7.so
+%{_libdir}/libmlt++-7.so
+%{_includedir}/mlt-7/
+
+%{_libdir}/cmake/Mlt7/
+
 
 %files freeworld 
 %{_libdir}/mlt-7/libmltavformat.so
@@ -243,8 +247,11 @@ mkdir -p build
 
 %changelog
 
-* Sat Jun 19 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 1:7.0.1-8
+* Sat Jun 19 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 7.0.1-4
+- Added missed packages
+
+* Sat Jun 19 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 7.0.1-3
 - Renamed fool subpackage
 
-* Fri May 28 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 1:7.0.1-7
+* Fri May 28 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 7.0.1-1
 - Initial build
