@@ -68,6 +68,7 @@ BuildRequires:	movit-devel
 BuildRequires:	eigen3-devel
 BuildRequires:	libebur128-devel
 BuildRequires:	libatomic
+BuildRequires:	chrpath
 Provides:	mlt%{?_isa} = %{version}-%{release}
 
 %if %{with ruby}
@@ -178,6 +179,8 @@ mkdir -p build
 
 %install
 %make_install -C build
+
+chrpath --delete %{buildroot}/usr/bin/melt-7
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
