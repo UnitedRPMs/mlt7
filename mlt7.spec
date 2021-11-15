@@ -1,4 +1,4 @@
-%global commit0 ae64019707c6660e5e8d5cfe293ad3b18868a5c1
+%global commit0 657324445da65328be866364d6b5b66c7a7a9e10
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global gver .git%{shortcommit0}
 # 
@@ -14,8 +14,8 @@
 
 Summary:        Toolkit for broadcasters, video editors, media players, transcoders
 Name:           mlt7
-Version:        7.0.1
-Release:        4%{?dist}
+Version:        7.2.0
+Release:        1%{?dist}
 
 License:        GPLv3 and LGPLv2+
 URL:            http://www.mltframework.org/twiki/bin/view/MLT/
@@ -249,6 +249,9 @@ chrpath --delete %{buildroot}/usr/bin/melt-7
 
 
 %changelog
+
+* Sat Nov 13 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 7.2.0-4
+- Updated to 7.2.0
 
 * Sat Jun 19 2021 Unitedrpms Project <unitedrpms AT protonmail DOT com> 7.0.1-4
 - Added missed packages
